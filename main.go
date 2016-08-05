@@ -27,18 +27,21 @@ func main() {
 	}
 
 	config := &container.Config{
-		Cmd:   []string{"ls", "-a"},
-		Image: "ubuntu",
+		Cmd:         []string{"./binary.exe"},
+		Image:       "gcc",
+		WorkingDir:  "/app",
+		AttachStdin: true,
+		OpenStdin:   true,
+		StdinOnce:   true,
 	}
-	resp, err := cli.ContainerCreate(context.Background(), config, &container.HostConfig{}, &network.NetworkingConfig{}, "")
+	hostConfig := &container.HostConfig{
+		Binds: []string{"/Users/madhavjha/src/github.com/maddyonline/trydocker/test_cpp:/app"},
+	}
+	resp, err := cli.ContainerCreate(context.Background(), config, hostConfig, &network.NetworkingConfig{}, "")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(resp.ID)
 	cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
-	//cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
-	// cli.ContainerExecCreate(context.Background(), "gcc", config)
-	//     ContainerExecCreate(ctx context.Context, container string, config types.ExecConfig) (types.ContainerExecCreateResponse, error)
-	// }
 
 }
