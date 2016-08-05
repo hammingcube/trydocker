@@ -8,6 +8,8 @@ import (
 	"github.com/docker/engine-api/types/container"
 	"github.com/docker/engine-api/types/network"
 	"golang.org/x/net/context"
+	"log"
+	"time"
 )
 
 func main() {
@@ -43,5 +45,25 @@ func main() {
 	}
 	fmt.Println(resp.ID)
 	cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
-
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	ch := make(chan struct{})
+	go func() {
+		_, err = cli.ContainerWait(ctx, resp.ID)
+		if err != nil {
+			log.Fatal(err)
+			ch <- struct{}{}
+			return
+		}
+		ch <- struct{}{}
+	}()
+	for {
+		select {
+		case <-ch:
+			fmt.Println("Done")
+			return
+		case <-time.After(2 * time.Second):
+			fmt.Println("Still going...")
+		}
+	}
 }
