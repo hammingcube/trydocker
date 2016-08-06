@@ -1,2 +1,1 @@
-g++ -std=c++11 main.cpp -o binary.exe
-./binary.exe < __stdin__
+g++ -std=c++11 -o binary.exe *.cpp && ./binary.exe < testcases/prob-1-input-0001.txt
